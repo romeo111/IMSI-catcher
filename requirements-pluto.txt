@@ -1,0 +1,5 @@
+# Python dependencies; the native libiio library must also be installed.
+# Keep NumPy compatible with Debian 12's GNU Radio/SciPy binaries.
+numpy>=1.20,<2
+pyadi-iio==0.0.21
+pylibiio==0.25

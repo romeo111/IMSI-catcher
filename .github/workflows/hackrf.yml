@@ -1,4 +1,4 @@
-name: HackRF simple checks
+name: HackRF and Pluto checks
 on:
   push:
     branches: ["codex/hackrf-simple"]
@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: python3 -m pip install 'numpy<2'
       - run: python3 -m unittest discover -s tests -v
   gnuradio:
     runs-on: ubuntu-latest
@@ -21,8 +22,11 @@ jobs:
       - name: Install distribution SDR packages
         run: |
           apt-get update
-          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3 gr-gsm hackrf
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3 python3-venv gr-gsm hackrf libiio0 libiio-utils
+          python3 -m venv --system-site-packages /tmp/pluto-env
+          /tmp/pluto-env/bin/python -m pip install -r requirements-pluto.txt
       - name: Verify dependencies and run real flowgraphs
         run: |
-          python3 hackrf_simple.py doctor
-          python3 -m unittest discover -s tests -v
+          /tmp/pluto-env/bin/python hackrf_simple.py doctor
+          /tmp/pluto-env/bin/python pluto_simple.py doctor
+          /tmp/pluto-env/bin/python -m unittest discover -s tests -v

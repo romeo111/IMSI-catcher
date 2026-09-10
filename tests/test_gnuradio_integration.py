@@ -37,13 +37,17 @@ class IntegrationTests(unittest.TestCase):
             self.assertIn("001070000000001", output.getvalue())
 
     def test_finite_cs8_and_cf32_graphs_finish(self):
-        script = Path(__file__).resolve().parents[1] / "hackrf_simple.py"
+        root = Path(__file__).resolve().parents[1]
         with tempfile.TemporaryDirectory() as directory:
-            for fmt, width, mode in (("cs8", 2, "BCCH"), ("cf32", 8, "BCCH_SDCCH4")):
+            cases = (("hackrf_simple.py", "cs8", 2, "BCCH", "8M"),
+                     ("hackrf_simple.py", "cf32", 8, "BCCH_SDCCH4", "8M"),
+                     ("pluto_simple.py", "cf32", 8, "BCCH", "2M"))
+            for filename, fmt, width, mode, rate in cases:
+                script = root / filename
                 path = Path(directory) / ("zero." + fmt)
                 path.write_bytes(b"\0" * (100000 * width))
                 result = subprocess.run([sys.executable, str(script), "decode", str(path),
-                                         "-f", "935.2M", "-s", "8M", "--format", fmt, "--mode", mode],
+                                         "-f", "935.2M", "-s", rate, "--format", fmt, "--mode", mode],
                                         capture_output=True, text=True, timeout=30)
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertIn("Finished: 0 observations", result.stderr)

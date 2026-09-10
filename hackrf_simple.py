@@ -57,6 +57,12 @@ def make_parser():
     capture.add_argument("--lna", type=int, choices=range(0, 41, 8), default=16)
     capture.add_argument("--vga", type=int, choices=range(0, 63, 2), default=20)
     capture.add_argument("--serial", help="HackRF serial number when multiple devices are connected")
+    add_decode_parser(commands)
+    return parser
+
+
+def add_decode_parser(commands):
+    """Shared offline decoding options for HackRF and Pluto recordings."""
     decode = commands.add_parser("decode", help="Analyze a saved IQ file (metadata loaded automatically)")
     decode.add_argument("input", type=Path)
     decode.add_argument("-f", "--freq", type=number, help="Recorded center frequency; override metadata")
@@ -67,7 +73,7 @@ def make_parser():
     decode.add_argument("--all-tmsi", action="store_true", help="Also display temporary identities")
     decode.add_argument("--assignments", action="store_true", help="Also display Immediate Assignment messages")
     decode.add_argument("--jsonl", type=Path, help="Write observations to a NEW JSON Lines file")
-    return parser
+    return decode
 
 
 def capture_command(args, executable="hackrf_transfer"):
@@ -217,7 +223,7 @@ def build_decoder(args, settings, reporter):
                 # Surface asynchronous output/parser errors after the graph stops.
                 reporter.error = error
 
-    graph = gr.top_block("HackRF IQ GSM decoder")
+    graph = gr.top_block("IQ GSM decoder")
     source = blocks.file_source(gr.sizeof_char if fmt == "cs8" else gr.sizeof_gr_complex,
                                 str(args.input.resolve()), False)
     adapter = grgsm.gsm_input(ppm=args.ppm, osr=4, fc=frequency, samp_rate_in=rate)

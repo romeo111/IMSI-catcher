@@ -1,6 +1,16 @@
 # IMSI-catcher
 
-## HackRF simple edition
+## HackRF and Pluto / Nano SDR simple edition
+
+**Pluto-compatible Nano SDR (Zynq-7010 + AD9363, one RX):** use `pluto_simple.py`.
+It captures RX0 through pyadi-iio/libiio at 2 MS/s into `cf32` plus metadata and uses
+the same offline decoder. Requires compatible Pluto firmware; no FPGA/firmware modifications.
+**[Інструкція для Pluto / Nano SDR](PLUTO_UK.md)**
+
+```bash
+python3 pluto_simple.py capture nano.cf32 --uri ip:192.168.2.1 --freq 935.2M --seconds 30
+python3 pluto_simple.py decode nano.cf32
+```
 
 This fork adds `hackrf_simple.py`: record HackRF signed 8-bit IQ at 8 MS/s with
 metadata, then decode a saved file in one process using GNU Radio / gr-gsm.

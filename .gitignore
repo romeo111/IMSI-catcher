@@ -15,3 +15,4 @@ __pycache__/
 *.cf32.json
 *.iq.json
 *.jsonl
+.venv/
