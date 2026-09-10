@@ -2,3 +2,16 @@
 venv
 .env
 test*
+!tests/
+!tests/**
+__pycache__/
+*.pyc
+*.cs8
+*.cfile
+*.cf32
+*.iq
+*.cs8.json
+*.cfile.json
+*.cf32.json
+*.iq.json
+*.jsonl

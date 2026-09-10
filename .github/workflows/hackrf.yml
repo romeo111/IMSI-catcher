@@ -1,0 +1,28 @@
+name: HackRF simple checks
+on:
+  push:
+    branches: ["codex/hackrf-simple"]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  parser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m unittest discover -s tests -v
+  gnuradio:
+    runs-on: ubuntu-latest
+    container: debian:bookworm-slim
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install distribution SDR packages
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3 gr-gsm hackrf
+      - name: Verify dependencies and run real flowgraphs
+        run: |
+          python3 hackrf_simple.py doctor
+          python3 -m unittest discover -s tests -v

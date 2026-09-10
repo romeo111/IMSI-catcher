@@ -1,5 +1,25 @@
 # IMSI-catcher
 
+## HackRF simple edition
+
+This fork adds `hackrf_simple.py`: record HackRF signed 8-bit IQ at 8 MS/s with
+metadata, then decode a saved file in one process using GNU Radio / gr-gsm.
+Includes Python 3 packet parsing, optional TMSI / assignment output, JSONL export,
+and synthetic tests. The upstream tools are retained below.
+
+**[Інструкція українською — встановлення та запуск](HACKRF_UK.md)**
+
+```bash
+python3 hackrf_simple.py doctor
+python3 hackrf_simple.py capture sample.cs8 --freq 935.2M --seconds 30
+python3 hackrf_simple.py decode sample.cs8
+```
+
+The example frequency must be replaced with your test GSM C0 carrier. Target:
+Linux with distribution GNU Radio / gr-gsm packages; no physical HackRF validation yet.
+
+---
+
 This program shows you IMSI numbers, country, brand and operator of cellphones around you.  
   
 /!\ This program was made to understand how GSM network work. Not for bad hacking !  
