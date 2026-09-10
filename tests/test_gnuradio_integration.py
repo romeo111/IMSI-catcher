@@ -8,11 +8,15 @@ import sys
 import tempfile
 import unittest
 
-from hackrf_simple import Reporter, build_decoder, make_parser, recording_settings
+from hackrf_simple import Reporter, build_decoder, load_gsm, make_parser, recording_settings
 from test_hackrf_simple import IMSI, packet
 
 
-AVAILABLE = all(importlib.util.find_spec(name) is not None for name in ("gnuradio", "grgsm", "pmt"))
+try:
+    load_gsm()
+    AVAILABLE = all(importlib.util.find_spec(name) is not None for name in ("gnuradio", "pmt"))
+except ImportError:
+    AVAILABLE = False
 
 
 @unittest.skipUnless(AVAILABLE, "Requires GNU Radio and gr-gsm (run in Debian CI)")

@@ -4,7 +4,7 @@
 import argparse
 from contextlib import ExitStack
 from datetime import datetime, timezone
-import importlib.util
+import importlib
 import json
 import math
 from pathlib import Path
@@ -33,6 +33,16 @@ def utc_now():
 
 def sidecar(path):
     return Path(str(path) + ".json")
+
+
+def load_gsm():
+    """GNU Radio 3.10 packages use gnuradio.gsm; older builds use grgsm."""
+    try:
+        return importlib.import_module("gnuradio.gsm")
+    except ModuleNotFoundError as error:
+        if error.name not in ("gnuradio", "gnuradio.gsm"):
+            raise
+        return importlib.import_module("grgsm")
 
 
 def make_parser():
@@ -179,7 +189,7 @@ def build_decoder(args, settings, reporter):
     """Construct a file-only flowgraph; no UDP port or radio device is opened."""
     try:
         from gnuradio import blocks, gr
-        import grgsm
+        grgsm = load_gsm()
         import pmt
     except ImportError as error:
         raise RuntimeError("Use Linux system Python with 'gnuradio' and 'gr-gsm' installed: {}".format(error))
@@ -264,9 +274,11 @@ def decode(args):
 def doctor():
     missing = []
     for name in ("gnuradio", "grgsm", "pmt"):
-        present = importlib.util.find_spec(name) is not None
-        print("{}: {}".format(name, "found" if present else "missing"))
-        if not present:
+        try:
+            module = load_gsm() if name == "grgsm" else importlib.import_module(name)
+            print("{}: found ({})".format(name, module.__name__))
+        except (ImportError, OSError) as error:
+            print("{}: unavailable ({})".format(name, error))
             missing.append(name)
     present = shutil.which("hackrf_transfer") is not None
     print("hackrf_transfer: {}".format("found" if present else "missing (needed only for capture)"))
